@@ -15,17 +15,18 @@ export default async function DashboardPage() {
 		orderBy: { created_at: 'desc' },
 	})
 
-	const invited = await prisma.invite.findMany({where: {inviter_id: user.id, status: 'ACCEPTED'}})
-	const invitedUsers = await prisma.user.findMany({where: {id: {in: invited.map(invite => invite.email)}}})
+	const invited = await prisma.invite.findMany({ where: { inviter_id: user.id, status: 'ACCEPTED' } })
+	const invitedUsers = await prisma.user.findMany({ where: { id: { in: invited.map((invite) => invite.email) } } })
 
 	const activities = await prisma.activity.findMany({
 		where: {
 			OR: [
 				{ user_id: user.id },
 				{ user_id: { in: invites.filter((invite) => invite.status === 'ACCEPTED').map((invite) => invite.inviter_id) } },
-				{user_id: {in: invitedUsers.map(user => user.id)}}
+				{ user_id: { in: invitedUsers.map((user) => user.id) } },
 			],
 		},
+		include: { user: true },
 		orderBy: { created_at: 'desc' },
 	})
 
@@ -91,7 +92,9 @@ export default async function DashboardPage() {
 							<>
 								<div className='flex items-center gap-2 justify-between'>
 									<span className='text-lg font-black'>{activity.type}</span>
-									<span className='text-xs'>{activity.created_at.toLocaleString()}</span>
+									<span className='text-xs'>
+										{activity.user.name} at {activity.created_at.toLocaleString()}
+									</span>
 								</div>
 								<span className='text-sm'>
 									{activity.amount} {activity.unit}
@@ -102,7 +105,9 @@ export default async function DashboardPage() {
 							<>
 								<div className='flex items-center gap-2 justify-between'>
 									<span className='text-lg font-black'>{activity.type}</span>
-									<span className='text-xs'>{activity.created_at.toLocaleString()}</span>
+									<span className='text-xs'>
+										{activity.user.name} at {activity.created_at.toLocaleString()}
+									</span>
 								</div>
 								{activity.notes && <span className='text-sm italic'>{activity.notes}</span>}
 							</>
