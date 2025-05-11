@@ -3,16 +3,18 @@
 import { handleFormAction } from '@/components/ui/base/action'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { env } from '@/lib/env'
 import { s3 } from '@/lib/s3'
 import { getSuccessRedirect } from '@/lib/utils'
-import { createActivitySchema, updateAvatarSchema, updateUserSchema } from '@/validators/user'
+import { createActivitySchema, createInviteSchema, updateAvatarSchema, updateUserSchema } from '@/validators/user'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { Account } from '@prisma/client'
+import { Account, Invite } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { nanoid } from 'nanoid'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { env } from 'process'
+import { Resend } from 'resend'
 import { v4 as uuidv4 } from 'uuid'
 
 export const createActivity = async (_: unknown, formData: FormData) =>
@@ -22,6 +24,30 @@ export const createActivity = async (_: unknown, formData: FormData) =>
 		// TODO: Use the new successMessage
 		redirect(getSuccessRedirect('/', 'Successfully logged activity'))
 	})
+
+export const createInvite = async (_: unknown, formData: FormData) =>
+	handleFormAction(formData, createInviteSchema, async ({ email }) => {
+		const user = await auth()
+		const token = nanoid()
+
+		await prisma.invite.create({ data: { email, token, inviter_id: user.id } })
+
+		const resend = new Resend(env.AUTH_RESEND_KEY)
+		await resend.emails.send({
+			from: 'Feeder No-Reply <noreply@gambrell.dev>',
+			to: email,
+			subject: 'Feeder Invitation',
+			html: `<p>You have been invited to join Feeder by ${user.name}.</p><p>Click <a href="${env.NEXT_PUBLIC_SITE_URL}">here</a> to accept the invitation.</p>`,
+		})
+
+		redirect(getSuccessRedirect('/', 'Invitation sent'))
+	})
+
+export async function respondToInvite(id: Invite['id'], status: Invite['status']) {
+	const user = await auth()
+	await prisma.invite.update({ where: { id, email: user.email }, data: { status } })
+	redirect(getSuccessRedirect('/', 'Invitation responded to'))
+}
 
 export const updateAvatar = async (_: unknown, formData: FormData) =>
 	handleFormAction(formData, updateAvatarSchema, async ({ file }) => {

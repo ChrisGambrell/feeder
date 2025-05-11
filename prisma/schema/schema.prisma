@@ -26,3 +26,25 @@ model Activity {
   unit   String?
   notes  String?
 }
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Invite {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  inviter_id String
+  inviter    User   @relation(fields: [inviter_id], references: [id])
+
+  email       String
+  token       String       @unique
+  status      InviteStatus @default(PENDING)
+  accepted_at DateTime?
+
+  @@index([email])
+}

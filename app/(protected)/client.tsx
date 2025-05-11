@@ -1,15 +1,17 @@
 'use client'
 
-import { createActivity } from '@/actions/user'
+import { createActivity, createInvite } from '@/actions/user'
 import { ActionButton } from '@/components/ui/base/action-button'
+import { Button } from '@/components/ui/base/c-button'
 import { FormInput } from '@/components/ui/base/form-input'
 import { FormSelect } from '@/components/ui/base/form-select'
 import { FormTextarea } from '@/components/ui/base/form-textarea'
 import { useForm } from '@/components/ui/base/use-form'
 import { buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { createActivitySchema } from '@/validators/user'
+import { createActivitySchema, createInviteSchema } from '@/validators/user'
 import { ActivityType } from '@prisma/client'
+import { ShareIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
@@ -33,14 +35,41 @@ export function NavButtons() {
 								? 'secondary'
 								: 'link'
 							: pathname.startsWith(link.href)
-							? 'secondary'
-							: 'link',
+								? 'secondary'
+								: 'link',
 					})}
 					href={link.href}>
 					{link.label}
 				</Link>
 			))}
 		</div>
+	)
+}
+
+export function ShareDialog() {
+	const [state, action, loading] = useForm(createInvite, createInviteSchema)
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<div className='ml-auto'>
+					<Button variant='outline'>
+						<ShareIcon />
+						<span>Share with another user</span>
+					</Button>
+				</div>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Share with another user</DialogTitle>
+					<DialogDescription>Enter the email of the user you want to share with.</DialogDescription>
+				</DialogHeader>
+				<form action={action} className='grid gap-6'>
+					<FormInput label='Email address' name='email' state={state} />
+					<ActionButton loading={loading}>Invite</ActionButton>
+				</form>
+			</DialogContent>
+		</Dialog>
 	)
 }
 

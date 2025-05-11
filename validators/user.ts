@@ -8,6 +8,8 @@ export const createActivitySchema = z.object({
 	notes: z.string().optional(),
 })
 
+export const createInviteSchema = z.object({ email: z.string().email() })
+
 export const updateAvatarSchema = z.object({
 	file: z
 		.instanceof(File)
