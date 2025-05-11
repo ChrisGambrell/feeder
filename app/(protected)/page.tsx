@@ -15,11 +15,15 @@ export default async function DashboardPage() {
 		orderBy: { created_at: 'desc' },
 	})
 
+	const invited = await prisma.invite.findMany({where: {inviter_id: user.id, status: 'ACCEPTED'}})
+	const invitedUsers = await prisma.user.findMany({where: {id: {in: invited.map(invite => invite.email)}}})
+
 	const activities = await prisma.activity.findMany({
 		where: {
 			OR: [
 				{ user_id: user.id },
 				{ user_id: { in: invites.filter((invite) => invite.status === 'ACCEPTED').map((invite) => invite.inviter_id) } },
+				{user_id: {in: invitedUsers.map(user => user.id)}}
 			],
 		},
 		orderBy: { created_at: 'desc' },
