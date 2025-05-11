@@ -1,6 +1,7 @@
 import { GlobalToaster } from '@/components/ui/base/global-toaster'
 import { ThemeProvider } from '@/components/ui/base/theme-provider'
 import '@/lib/env'
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Suspense } from 'react'
@@ -34,6 +35,7 @@ export default function RootLayout({
 					<Suspense>
 						<GlobalToaster />
 					</Suspense>
+					<Analytics />
 				</ThemeProvider>
 			</body>
 		</html>
