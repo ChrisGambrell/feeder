@@ -16,7 +16,8 @@ export default async function DashboardPage() {
 	})
 
 	const invited = await prisma.invite.findMany({ where: { inviter_id: user.id, status: 'ACCEPTED' } })
-	const invitedUsers = await prisma.user.findMany({ where: { id: { in: invited.map((invite) => invite.email) } } })
+	const invitedUserEmails = invited.map((invite) => invite.email)
+	const invitedUsers = await prisma.user.findMany({ where: { email: { in: invitedUserEmails } } })
 
 	const activities = await prisma.activity.findMany({
 		where: {
