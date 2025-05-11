@@ -10,6 +10,8 @@ model User {
     emailVerified DateTime?
     passwordHash  String?
 
+    activities Activity[]
+
     accounts      Account[]
     sessions      Session[]
     // Optional for WebAuthn support

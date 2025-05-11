@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { s3 } from '@/lib/s3'
 import { getSuccessRedirect } from '@/lib/utils'
-import { updateAvatarSchema, updateUserSchema } from '@/validators/user'
+import { createActivitySchema, updateAvatarSchema, updateUserSchema } from '@/validators/user'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Account } from '@prisma/client'
@@ -14,6 +14,14 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { env } from 'process'
 import { v4 as uuidv4 } from 'uuid'
+
+export const createActivity = async (_: unknown, formData: FormData) =>
+	handleFormAction(formData, createActivitySchema, async (data) => {
+		const user = await auth()
+		await prisma.activity.create({ data: { ...data, user_id: user.id } })
+		// TODO: Use the new successMessage
+		redirect(getSuccessRedirect('/', 'Successfully logged activity'))
+	})
 
 export const updateAvatar = async (_: unknown, formData: FormData) =>
 	handleFormAction(formData, updateAvatarSchema, async ({ file }) => {

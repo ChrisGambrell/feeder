@@ -1,4 +1,12 @@
+import { ActivityType } from '@prisma/client'
 import { z } from 'zod'
+
+export const createActivitySchema = z.object({
+	type: z.nativeEnum(ActivityType),
+	amount: z.coerce.number().optional(),
+	unit: z.string().optional(),
+	notes: z.string().optional(),
+})
 
 export const updateAvatarSchema = z.object({
 	file: z
