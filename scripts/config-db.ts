@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
+// TODO: Github action to migrate the database on schema changes
 export function main() {
 	try {
 		// Read the current package.json

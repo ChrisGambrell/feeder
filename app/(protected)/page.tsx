@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { cn } from '@/lib/utils'
 import { DropletsIcon, MilkIcon } from 'lucide-react'
 import { CreateActivityDialog } from './client'
 
@@ -11,7 +12,7 @@ export default async function DashboardPage() {
 		<div className='grid gap-4 px-2'>
 			<div className='flex items-center gap-2'>
 				<CreateActivityDialog type='PEE'>
-					<button className='cursor-pointer flex-1 h-24 flex flex-col items-center justify-center gap-2 rounded-md border p-2 hover:bg-muted transition-colors'>
+					<button className='cursor-pointer bg-yellow-500/40 flex-1 h-24 flex flex-col items-center justify-center gap-2 rounded-md border p-2 hover:bg-muted transition-colors'>
 						<DropletsIcon className='size-6 fill-yellow-500' />
 						<span className='text-sm font-black'>Log Pee</span>
 					</button>
@@ -23,7 +24,7 @@ export default async function DashboardPage() {
 					</button>
 				</CreateActivityDialog>
 				<CreateActivityDialog type='POOP'>
-					<button className='cursor-pointer flex-1 h-24 flex flex-col items-center justify-center gap-2 rounded-md border p-2 hover:bg-muted transition-colors'>
+					<button className='cursor-pointer bg-yellow-800/40 flex-1 h-24 flex flex-col items-center justify-center gap-2 rounded-md border p-2 hover:bg-muted transition-colors'>
 						<DropletsIcon className='size-6 fill-yellow-800' />
 						<span className='text-sm font-black'>Log Poop</span>
 					</button>
@@ -31,7 +32,12 @@ export default async function DashboardPage() {
 			</div>
 			<div className='divide-y'>
 				{activities.map((activity) => (
-					<div key={activity.id} className='p-2 flex flex-col'>
+					<div
+						key={activity.id}
+						className={cn('m-2 p-2 rounded-lg border flex flex-col', {
+							'bg-yellow-500/40': activity.type === 'PEE',
+							'bg-yellow-800/40': activity.type === 'POOP',
+						})}>
 						{activity.type === 'FOOD' ? (
 							<>
 								<div className='flex items-center gap-2 justify-between'>
